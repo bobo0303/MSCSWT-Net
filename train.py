@@ -14,7 +14,6 @@ from losses.Perceptual import PerceptualLoss
 from losses.Adversarial import NonSaturatingWithR1
 from losses.HSV import HSV
 from losses.Style import StyleLoss
-from losses.Edge import Edge_MSE_loss
 from tensorboardX import SummaryWriter
 
 # set seed
@@ -80,7 +79,7 @@ if os.path.exists(args['resume_ckpt']):
     Discriminator = Discriminator.to(args['gpu'])
     logger.info('Finished reloading the Epoch '+c.yellow(str(data['epoch']))+' model')
     # Optimizer
-    raw_model = Inpaint_model.module if hasattr(Inpaint_model, "module") else Inpaint_model  # 要問一下
+    raw_model = Inpaint_model.module if hasattr(Inpaint_model, "module") else Inpaint_model
     optimizer = raw_model.configure_optimizers(args, new_lr=args['learning_rate'])
     # update optimizer info
     optimizer.load_state_dict(data['optimizer'])
@@ -158,11 +157,11 @@ if alex is None:
 else:
     logger.info(c.blue('-----------------------------')+c.magenta(' Loaded! ')+c.blue('----------------------------'))
 
-# print('==> Training start: ')
+print('==> Training start: ')
 summary(raw_model, [(3, 256, 256), (1, 256, 256)])  # won't write in log (model show)
 
 for epoch in range(args['train_epoch']):
-    if previous_epoch != -1 and epoch < previous_epoch:
+    if previous_epoch != -1 and epoch < previous_epoch:  # 如果有接續訓練會從接續的epoch開始計算
         continue
     if epoch == previous_epoch + 1:
         logger.info("Resume from Epoch %d" % epoch)
@@ -177,53 +176,42 @@ for epoch in range(args['train_epoch']):
             if type(items[k]) is torch.Tensor:
                 items[k] = items[k].to(args['gpu']).requires_grad_()    # img mask edge name
 
-        Discriminator.zero_grad()
-        D_img, _ = Discriminator(items['img'])
-        LD1 = adv.discriminator_real_loss(items['img'], D_img)    # LD1+LGP (real loss)
-
-        pred_img = raw_model(items['img'], items['mask'])
-        pred_img_ = pred_img.detach()
-        D_pred_img, _ = Discriminator(pred_img_)
-        LD2 = adv.discriminator_fake_loss(D_pred_img, mask=items['mask'])  #LD23 (fake loss)
-        D_loss = args['Lambda_LD1']*LD1 + args['Lambda_LD2']*LD2
-
-        D_loss.backward()
-        D_optimizer.step()
-
+        # G
         raw_model.zero_grad()
-
-        img = items['img']
-        pred_img = pred_img
-        mask = items['mask']
-        Edge = items['edge']
-
-        L1_loss = l1_loss(img, pred_img)
-        Edge_loss = Edge_MSE_loss(img, pred_img, Edge)
-        Perceptual_loss = VGG.forward(img, pred_img, mask=mask)
-        style_loss = style(pred_img * mask, img * mask)
-        HSV_loss_H, HSV_loss_S, HSV_loss_V, HSV_loss = HSV(img, pred_img, Edge)
-        # HSV_edge_loss_H, HSV_edge_loss_S, HSV_edge_loss_V, HSV_edge_loss = HSV_edge(img, pred_img, Edge)
-        # LHSV_H = args['Lambda_HSV'] * HSV_loss_H + args['Lambda_HSV_edge'] * HSV_edge_loss_H
-        # LHSV_S = args['Lambda_HSV'] * HSV_loss_S + args['Lambda_HSV_edge'] * HSV_edge_loss_S
-        # LHSV_V = args['Lambda_HSV']*HSV_loss_V + args['Lambda_HSV_edge']*HSV_edge_loss_V
-        # LHSV = args['Lambda_HSV']*HSV_loss + args['Lambda_HSV_edge']*HSV_edge_loss
-        LHSV = args['Lambda_HSV'] * HSV_loss_H + args['Lambda_HSV'] * HSV_loss_S
-
+        Discriminator.zero_grad()
+        pred_img = raw_model(items['img'], items['mask'])
         D_pred_img, _ = Discriminator(pred_img)
-        LG = adv.generator_loss(D_pred_img, mask=None)  # LG
-        # G_loss = args['Lambda_L1']*L1_loss + args['Lambda_Perceptual']*Perceptual_loss + args['Lambda_LG']*LG
-        G_loss = args['Lambda_L1'] * L1_loss + args['Lambda_Perceptual'] * Perceptual_loss + args['Lambda_LG'] * LG + \
-                 args['Lambda_LHSV'] * LHSV + args['Lambda_Style'] * style_loss + args['Lambda_Edge'] * Edge_loss
 
+        # L1_loss = l1_loss(items['img'], pred_img, Edge=items['edge'])
+        L1_loss = l1_loss(items['img'], pred_img, Edge=None)
+        Perceptual_loss = VGG.forward(items['img'], pred_img, mask=items['mask'])
+        # style_loss = style(pred_img * items['mask'], items['img'] * items['mask'])
+        style_loss = style(pred_img, items['img'])
+        # HSV_loss_H, HSV_loss_S, HSV_loss_V, HSV_loss = HSV(items['img'], pred_img, edge=items['edge'])
+        HSV_loss_H, HSV_loss_S, HSV_loss_V, HSV_loss = HSV(items['img'], pred_img, edge=None)
+        LHSV = args['Lambda_HSV'] * HSV_loss_H + args['Lambda_HSV'] * HSV_loss_S + args['Lambda_HSV'] * HSV_loss_V
+        LG = adv.generator_loss(D_pred_img, mask=None)  # LG
+
+        G_loss = args['Lambda_L1'] * L1_loss + args['Lambda_Perceptual'] * Perceptual_loss + args['Lambda_LG'] * LG + \
+                 args['Lambda_LHSV'] * LHSV + args['Lambda_Style'] * style_loss
         G_loss.backward()
         optimizer.step()
 
+        # D
+        raw_model.zero_grad()
+        Discriminator.zero_grad()
+        pred_img = raw_model(items['img'], items['mask'])
+        D_img, _ = Discriminator(items['img'])
+        D_pred_img, _ = Discriminator(pred_img)
+        LD1 = adv.discriminator_real_loss(items['img'], D_img)    # LD1+LGP (real loss)
+        LD2 = adv.discriminator_fake_loss(D_pred_img, mask=items['mask'])  #LD2+3 (fake loss)
+
+        D_loss = args['Lambda_LD1']*LD1 + args['Lambda_LD2']*LD2
+        D_loss.backward()
+        D_optimizer.step()
+
         iterations += 1  # number of iterations processed this step
 
-        '''if iterations % args['print_freq'] == 0:
-            logger.info(f"epoch {epoch + 1} iter {it}/{args['iterations_per_epoch']}: D1_loss {LD1.item():.5f}. | D2_loss {LD2.item():.5f}. | "
-                        f"L1_loss {L1_loss.item():.5f} | Perceptual_loss {Perceptual_loss.item():.5f}. | HSV_Total_loss {LHSV.item():.5f}. | "
-                        f"G_loss {LG.item():.5f}. | D_Total_loss {D_loss.item():.5f}. | G_Total_loss {G_loss.item():.5f}. | lr {scheduler.get_lr()[0]:e}")'''
 
         if iterations % 500 == 0:
             # Visualization of training results (Edge and GT)
@@ -235,22 +223,17 @@ for epoch in range(args['train_epoch']):
             writer.add_scalar('loss/L1_loss', L1_loss.item(), iterations)  # tensorboard for log (visualize)
             writer.add_scalar('loss/Perceptual_loss', Perceptual_loss.item(), iterations)
             writer.add_scalar('loss/style_loss', style_loss.item(), iterations)
-            writer.add_scalar('loss/Edge_loss', Edge_loss.item(), iterations)
             writer.add_scalar('loss/LG', LG.item(), iterations)
-            writer.add_scalar('HSV/H_loss', HSV_loss_H.item(), iterations)
-            writer.add_scalar('HSV/S_loss', HSV_loss_S.item(), iterations)
+            # writer.add_scalar('HSV/H_loss', HSV_loss_H.item(), iterations)
+            # writer.add_scalar('HSV/S_loss', HSV_loss_S.item(), iterations)
             # writer.add_scalar('HSV/V_loss', HSV_loss_V.item(), iterations)
-            # writer.add_scalar('HSV/H_edge_loss', HSV_edge_loss_H.item(), iterations)
-            # writer.add_scalar('HSV/S_edge_loss', HSV_edge_loss_S.item(), iterations)
-            # writer.add_scalar('HSV/V_edge_loss', HSV_edge_loss_V.item(), iterations)
             writer.add_scalar('loss/HSV_loss', HSV_loss.item(), iterations)
-            # writer.add_scalar('loss/HSV_edge_loss', HSV_edge_loss.item(), iterations)
             writer.add_scalar('Total_loss/HSV_total_loss', LHSV.item(), iterations)
             writer.add_scalar('Total_loss/G_total_loss', G_loss.item(), iterations)
 
     logger.info(
         f"epoch {epoch + 1} iter {iterations}: D1_loss {LD1.item():.5f}. | D2_loss {LD2.item():.5f}. | {c.magenta('D_Total_loss')} {D_loss.item():.5f}. | "
-        f"L1_loss {L1_loss.item():.5f} | Perceptual_loss {Perceptual_loss.item():.5f}. | style_loss {style_loss.item():.5f}. | Edge_loss {Edge_loss.item():.5f} | HSV_Total_loss {LHSV.item():.5f} | "
+        f"L1_loss {L1_loss.item():.5f} | Perceptual_loss {Perceptual_loss.item():.5f}. | style_loss {style_loss.item():.5f}. | HSV_Total_loss {LHSV.item():.5f} | "
         f"G_loss {LG.item():.5f}. | {c.magenta('G_Total_loss')} {G_loss.item():.5f}. | lr {scheduler.get_lr()[0]:e}")
 
     # start EVAL
