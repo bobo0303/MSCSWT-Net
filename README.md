@@ -97,14 +97,12 @@ Qualitative results of Places2 dataset among all compared models. From left to r
 
 ## Ablation study
 
-- Transformer and HSV loss
 
 <div align=center>
 <img src="https://i.imgur.com/lKd5Veh.png" width="1300" height="350">
 </div>
 
-Ablation study label of transformer and HSV experiment.
-
+Ablation study table of GC, RDC, MSCSWin Transformer, and HSV loss. We report Peak signal-to-noise ratio (PSNR), structural similarity (SSIM), Learned Perceptual Image Patch Similarity (LPIPS) and Frechet inception distance ´ (FID) metrics.
 
 ## Object removal
 
@@ -113,7 +111,6 @@ Ablation study label of transformer and HSV experiment.
 </div>
 
 Object removal (size 256×256) results. From left to right: Original image, mask, object removal result.
-
 
 ## Acknowledgement
 This repository utilizes the codes of following impressive repositories   
@@ -125,11 +122,3 @@ This repository utilizes the codes of following impressive repositories
 ---
 ## Contact
 If you have any question, feel free to contact wiwi61666166@gmail.com
-
-/*
-## Cite
-```
-
-
-```
-*/
