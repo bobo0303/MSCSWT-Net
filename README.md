@@ -99,7 +99,7 @@ Qualitative results of Places2 dataset among all compared models. From left to r
 
 
 <div align=center>
-<img src="https://i.imgur.com/lKd5Veh.png" width="1300" height="350">
+<img src="https://i.imgur.com/lKd5Veh.png" width="800" height="125">
 </div>
 
 Ablation study table of GC, RDC, MSCSWin Transformer, and HSV loss. We report Peak signal-to-noise ratio (PSNR), structural similarity (SSIM), Learned Perceptual Image Patch Similarity (LPIPS) and Frechet inception distance ´ (FID) metrics.
