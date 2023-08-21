@@ -118,6 +118,7 @@ This repository utilizes the codes of following impressive repositories
 - [LaMa](https://github.com/saic-mdal/lama)
 - [CSWin Transformer](https://github.com/microsoft/CSWin-Transformer)
 - [Vision Transformer](https://github.com/google-research/vision_transformer)
+- [SWMHT-Net](https://github.com/bobo0303/LIGHTWEIGHT-IMAGE-INPAINTING-BY-STRIPE-WINDOW-TRANSFORMER-WITH-JOINT-ATTENTION-TO-CNN)
 
 ---
 ## Contact
