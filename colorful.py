@@ -19,20 +19,3 @@ def cyan(content):
 def white(content):
     return termcolor.colored(content,"white",attrs=["bold"])
 
-# attrs = [bold, dark, underline, blink, reverse, conealed]
-# https://pypi.org/project/termcolor/
-
-# print(grey('grey') +' '+ red('red') +' '+ green('green') +' '+ yellow('yellow') +' '+ blue('blue') +' '+ magenta('magenta') +' '+ cyan('cyan') +' '+ white('white'))
-
-# text = colored('Hello, World!', 'red', attrs=['reverse', 'blink'])
-# print(text)
-# cprint('Hello, World!', 'green', 'on_red')
-#
-# print_red_on_cyan = lambda x: cprint(x, 'red', 'on_cyan')
-# print_red_on_cyan('Hello, World!')
-# print_red_on_cyan('Hello, Universe!')
-#
-# for i in range(10):
-#     cprint(i, 'magenta', end=' ')
-#
-# cprint("Attention!", 'red', attrs=['bold'], file=sys.stderr)

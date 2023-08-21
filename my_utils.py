@@ -15,7 +15,6 @@ def set_seed(seed):
 
 def Visualization_of_training_results(pred_img, input_img, input_mask, save_path, iterations):
 
-    # without edge
     current_img = input_img[:4, ...]
     current_img = current_img.permute(0, 2, 3, 1) * 255
     original_img = np.concatenate(current_img.cpu().detach().numpy().astype(np.uint8), axis=0)  # GT
@@ -57,7 +56,7 @@ def LPIPS(GT, Pred, alex):
 
 def FID(GT, Pred):
     pass
-    return FID  # noused
+    return FID
 
 def save_img(Pred, save_img_path, name):
     for n in range(Pred.shape[0]):
