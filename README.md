@@ -1,6 +1,6 @@
 # MSCSWT-Net: IMAGE INPAINTING BY MSCSWIN TRANSFORMER ADVERSARIAL AUTOENCODER
 
-You can find our paper ["Here"](https://arxiv.org/abs/2301.00553)
+// You can find our paper ["Here"](https://arxiv.org/abs/2301.00553)
 
 Image inpainting has been researched for years. From deeper and larger models to models that focus on global information, all of them aim to obtain results closer to reality. In this paper, we combine the stripe window and line-by-line feature shift to modify the Vision Transformer (ViT) to reduce the computation cost and obtain global information from the oblique attention. In addition, we design a new loss function to enhance the texture and colors for inpainting. At last, to validate
 the efficacy of our proposed model, we conduct extensive experiments on commonly seen datasets (Places2 and CelebA) compared with other state-of-the-art methods.
