@@ -4,7 +4,7 @@ Image inpainting has been researched for years. From deeper and larger models to
 the efficacy of our proposed model, we conduct extensive experiments on commonly seen datasets (Places2 and CelebA) compared with other state-of-the-art methods.
 
 
-<img src="https://i.imgur.com/fKwnAeL.png" alt="https://i.imgur.com/fKwnAeL.png" title="https://i.imgur.com/fKwnAeL.png" width="1312" height="350">
+<img src="https://i.imgur.com/fKwnAeL.png" alt="https://i.imgur.com/fKwnAeL.png" title="https://i.imgur.com/fKwnAeL.png" width="1312" height="300">
 
 # Environment
 - Python 3.7.0
@@ -78,7 +78,7 @@ python test.py (main setting test_ckpt/test_path/test_mask_1_60_path/save_img_pa
 
 - Places2 & CelebA
 
-<img src="https://i.imgur.com/7Ey8KfY.png" width="1312" height="350">
+<img src="https://i.imgur.com/7Ey8KfY.png" width="1312" height="300">
 
 Quantitative evaluation of inpainting on Places2 and CelebA datasets. We report Peak signal-to-noise ratio (PSNR), structural similarity (SSIM), Learned Perceptual Image Patch Similarity (LPIPS) and Frechet inception distance ´ (FID) metrics. The ▲ denotes more, and ▼ denotes less of the parameters compared to our proposed model. (Bold means the 1st best; Underline means the 2nd best)
 
