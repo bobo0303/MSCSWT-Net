@@ -1,4 +1,7 @@
-# MSCSWT-Net: IMAGE INPAINTING BY MSCSWIN TRANSFORMER ADVERSARIAL AUTOENCODER
+# [ICIP2023] MSCSWT-Net: IMAGE INPAINTING BY MSCSWIN TRANSFORMER ADVERSARIAL AUTOENCODER
+
+You can find our paper ["Here"](https://ieeexplore.ieee.org/document/10222778)
+
 
 Image inpainting has been researched for years. From deeper and larger models to models that focus on global information, all of them aim to obtain results closer to reality. In this paper, we combine the stripe window and line-by-line feature shift to modify the Vision Transformer (ViT) to reduce the computation cost and obtain global information from the oblique attention. In addition, we design a new loss function to enhance the texture and colors for inpainting. At last, to validate
 the efficacy of our proposed model, we conduct extensive experiments on commonly seen datasets (Places2 and CelebA) compared with other state-of-the-art methods.
@@ -116,6 +119,19 @@ This repository utilizes the codes of following impressive repositories
 - [CSWin Transformer](https://github.com/microsoft/CSWin-Transformer)
 - [Vision Transformer](https://github.com/google-research/vision_transformer)
 - [SWMHT-Net](https://github.com/bobo0303/LIGHTWEIGHT-IMAGE-INPAINTING-BY-STRIPE-WINDOW-TRANSFORMER-WITH-JOINT-ATTENTION-TO-CNN)
+
+## Citation
+```
+
+@inproceedings{chen2023image,
+ title={Image Inpainting by Mscswin Transformer Adversarial Autoencoder},
+ author={Chen, Bo-Wei and Liu, Tsung-Jung and Liu, Kuan-Hsien},
+ booktitle={2023 IEEE International Conference on Image Processing (ICIP)},
+ pages={2040--2044},
+ year={2023},
+ organization={IEEE} }
+
+```
 
 ---
 ## Contact
